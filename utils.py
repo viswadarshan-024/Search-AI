@@ -1,8 +1,5 @@
 import datetime
 import requests
-from langchain_openai import ChatOpenAI
-from langchain.agents import AgentType, initialize_agent
-from langchain.tools import Tool
 
 # Function to get the current date
 def get_current_date():
@@ -36,35 +33,3 @@ def google_search(query, api_key, cse_id):
 
     except requests.exceptions.RequestException as e:
         return f"⚠️ Google Search API Error: {str(e)}", []
-
-# Function to initialize AI model, Google search tool, and agent
-def initialize_ai_model(groq_api_key, google_api_key, google_cse_id, model_name, temperature):
-    llm = ChatOpenAI(
-        api_key=groq_api_key,
-        base_url="https://api.groq.com/openai/v1",
-        model=model_name,
-        temperature=temperature,
-        streaming=True,
-    )
-
-    # Google Search Tool
-    search_tool = Tool(
-        name="Google Search",
-        func=lambda query: google_search(query, google_api_key, google_cse_id),
-        description="Perform a Google Search and fetch top results."
-    )
-
-    # Initialize Agent
-    agent = initialize_agent(
-        tools=[search_tool],
-        llm=llm,
-        agent=AgentType.OPENAI_FUNCTIONS,
-        verbose=True,
-        handle_parsing_errors=True
-    )
-
-    return llm, search_tool, agent
-
-# Function to handle user input with the agent
-def handle_user_input(agent, user_input):
-    return agent.run(user_input)
